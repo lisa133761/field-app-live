@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FieldSync Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .glass-card { background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); margin-bottom: 20px; padding: 20px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; margin-top: 8px; margin-bottom: 16px; font-size: 16px; }
+        .btn-primary { background-color: #2563eb; color: white; font-weight: 600; padding: 14px; border-radius: 8px; width: 100%; text-align: center; display: inline-block; cursor: pointer; transition: background 0.2s; }
+        .btn-primary:hover { background-color: #1d4ed8; }
+        .btn-secondary { background-color: #10b981; color: white; padding: 10px; border-radius: 8px; width: 100%; font-weight: 600; cursor: pointer; margin-top: 10px;}
+    </style>
+</head>
+<body class="pb-10">
+
+    <header class="bg-blue-600 text-white p-5 sticky top-0 z-50 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-bold">FieldSync Pro</h1>
+        <div id="sync-status" class="text-sm font-semibold bg-green-500 px-3 py-1 rounded-full">Online</div>
+    </header>
+
+    <div class="p-4 max-w-md mx-auto">
+        <div class="glass-card bg-gradient-to-br from-blue-500 to-blue-700 text-white text-center">
+            <h2 class="text-sm uppercase tracking-wide opacity-80">Current Month Overview</h2>
+            <div class="flex justify-between mt-4">
+                <div>
+                    <p class="text-xs opacity-80">Total Collected</p>
+                    <p class="text-2xl font-bold" id="dash-collected">₹0</p>
+                </div>
+                <div>
+                    <p class="text-xs opacity-80">Pending Dues</p>
+                    <p class="text-2xl font-bold" id="dash-pending">₹0</p>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="downloadData()" class="btn-secondary mb-5">⬇️ Download Database (JSON)</button>
+
+        <div class="glass-card">
+            <h2 class="text-lg font-bold text-gray-800 border-b pb-2 mb-4">New Entry</h2>
+            
+            <form id="billingForm">
+                <label class="font-semibold text-gray-700 text-sm">Agent ID</label>
+                <select id="agentId" required>
+                    <option value="" disabled selected>Select Agent</option>
+                    <option value="Agent_01">Agent 01</option>
+                    <option value="Agent_02">Agent 02</option>
+                    <option value="Agent_03">Agent 03</option>
+                    <option value="Agent_04">Agent 04</option>
+                </select>
+
+                <label class="font-semibold text-gray-700 text-sm">Customer Name</label>
+                <input type="text" id="customerName" placeholder="e.g. John Doe" required>
+
+                <label class="font-semibold text-gray-700 text-sm">Customer ID</label>
+                <input type="text" id="customerId" placeholder="e.g. CUST-8902" required>
+
+                <label class="font-semibold text-gray-700 text-sm">Phone Number</label>
+                <input type="tel" id="phone" placeholder="10-digit number" required>
+
+                <div class="flex gap-4">
+                    <div class="w-1/2">
+                        <label class="font-semibold text-gray-700 text-sm">Current Bill</label>
+                        <input type="number" id="currentBill" value="0" oninput="calculateTotal()" required>
+                    </div>
+                    <div class="w-1/2">
+                        <label class="font-semibold text-gray-700 text-sm">Last Month Due</label>
+                        <input type="number" id="lastMonthDue" value="0" oninput="calculateTotal()" required>
+                    </div>
+                </div>
+
+                <div class="bg-gray-100 p-3 rounded-lg mb-4 text-center">
+                    <span class="text-sm text-gray-600">Total Amount: </span>
+                    <span class="text-xl font-bold text-blue-600" id="totalAmountDisplay">₹0</span>
+                </div>
+
+                <label class="font-semibold text-gray-700 text-sm block mb-2">Payment Status</label>
+                <div class="flex gap-4 mb-4">
+                    <label class="flex items-center"><input type="radio" name="payStatus" value="Paid" class="mr-2 w-auto" checked> Paid</label>
+                    <label class="flex items-center"><input type="radio" name="payStatus" value="Pending" class="mr-2 w-auto"> Pending</label>
+                </div>
+
+                <label class="font-semibold text-gray-700 text-sm block mb-2">Payment Method</label>
+                <div class="flex gap-4 mb-4">
+                    <label class="flex items-center"><input type="radio" name="payMethod" value="Online" class="mr-2 w-auto" checked> Online (UPI)</label>
+                    <label class="flex items-center"><input type="radio" name="payMethod" value="Cash" class="mr-2 w-auto"> Cash</label>
+                </div>
+
+                <hr class="my-6">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">Log a Complaint (Optional)</h2>
+                
+                <select id="complaintReason">
+                    <option value="None">-- No Complaint --</option>
+                    <option value="Dish not coming/No signal">Dish not coming/No signal</option>
+                    <option value="Fiber cable cut">Fiber cable cut</option>
+                    <option value="Router configuration issue">Router configuration issue</option>
+                    <option value="Slow speed">Slow speed</option>
+                    <option value="Red light blinking on router">Red light blinking on router</option>
+                    <option value="Wi-Fi password reset">Wi-Fi password reset</option>
+                    <option value="Frequent disconnections">Frequent disconnections</option>
+                    <option value="Connector damaged">Connector damaged</option>
+                    <option value="Shifting location">Shifting location</option>
+                    <option value="Power adapter failure">Power adapter failure</option>
+                </select>
+
+                <div id="complaintStatusDiv" style="display:none;">
+                    <label class="font-semibold text-gray-700 text-sm block mb-2">Complaint Status</label>
+                    <select id="complaintStatus">
+                        <option value="Open">Open</option>
+                        <option value="Resolved">Resolved</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary mt-4" id="submitBtn">Save Entry to Cloud</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
