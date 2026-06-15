@@ -1,7 +1,7 @@
 // ==========================================
 // CONFIGURATION: ADD YOUR GITHUB DETAILS HERE
 // ==========================================
-const GITHUB_PAT = "https://script.google.com/macros/s/AKfycbx33CB9xSt5Y0j8dNBsP5GYxY9wuBwzLma8SUU69ioMl20EdRQlP-QQg3-VjeQeUuvnbQ/exec"; 
+const GITHUB_PAT = "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"; 
 const REPO_OWNER = "lisa133761";
 const REPO_NAME = "billing-data"; // Your private repo name
 const FILE_PATH = "collections_data.json"; // File to store data
